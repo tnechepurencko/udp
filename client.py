@@ -28,14 +28,14 @@ while True:
         print('!time out for hello message!')
     else:
         data = data.decode('utf-8')
-        if data[0] == '1':
-            buffer_size = int(data[1:data.find(' ')])
-            print(data[data.find(' ') + 1:])
+        if data[1] == '1':
+            buffer_size = int(data[2:])
+            print('ack:', data)
             break
 
 # STEP 2: send the file (message index = 2), receive the ack (message index = 3)
 
-seq_no = 1
+seq_no = 0
 while True:
     chunk = file.read(buffer_size)
     seq_no += 1
@@ -53,8 +53,11 @@ while True:
             print('!time out for file message!')
         else:
             data = data.decode('utf-8')
-            if data[0] == '3' and data[1:data.find(' ')] == str(seq_no):
-                print(data[data.find(' ') + 1:], seq_no)
+            if data[1] == str(seq_no + 1):
+                print('ack:', data)
+                break
+            elif data[1] == 'f':
+                print('ack: data transfer is finished')
                 break
 
 

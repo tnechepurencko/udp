@@ -54,7 +54,7 @@ while True:
                 clients[client_address].append(client_msg.split(' ')[2])  # filename
                 clients[client_address].append(client_msg.split(' ')[3])  # size
                 print('hello from client:', client_msg)
-            reply = f'1{buf_size} server received the hello message'.encode('utf-8')
+            reply = f'a1 {buf_size}'.encode('utf-8')
             s.sendto(reply, client_address)
 
         elif client_msg[0] == 'd':
@@ -70,14 +70,16 @@ while True:
             if clients[client_address][2] != client_msg[1:chunk_index - 1]:
                 clients[client_address][2] = client_msg[1:chunk_index - 1]
                 clients[client_address][3].write(client_msg[chunk_index:].encode())
-            reply = f'3{client_msg[1:chunk_index - 1]} server received the chunk'.encode('utf-8')
+            reply = f'a{int(client_msg[1:chunk_index - 1]) + 1}'.encode('utf-8')
             print(f'chunk {client_msg[1:chunk_index - 1]} is received')
-            s.sendto(reply, client_address)
 
-            if int(clients[client_address][2]) >= clients[client_address][4]:
+            if int(clients[client_address][2]) + 1 >= clients[client_address][4]:
+                s.sendto('af'.encode('utf-8'), client_address)
                 print('data transfer is finished')
                 clients[client_address][3].close()
                 timer.file_transfer_is_finished()
+            else:
+                s.sendto(reply, client_address)
 
         timer = Timer(client_address)
         timer.start()
